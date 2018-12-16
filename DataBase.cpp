@@ -1666,10 +1666,23 @@ enum PacketType DelShare(CString &UserId, CString &ShareUserId)
 	}
 	g_pUserData[result2]->JoinNum --;
 
-	//若该用户正在编辑思维导图，不清理Online，清理操作链表，思维导图编辑人数减1
+	//若该用户正在编辑思维导图，不清理Online，清理操作链表，清理锁定节点，思维导图编辑人数减1
 	if(g_pUserData[result2]->Online && g_pUserData[result2]->pEditMind==pMind)
 	{
 		g_pUserData[result2]->OperateList.Clear();
+		if(g_pUserData[result2]->pLockBlock)
+		{
+			if(g_pUserData[result2]->pLockBlock->Lock && g_pUserData[result2]->pLockBlock->LockUser==ShareUserId)
+			{
+				g_pUserData[result2]->pLockBlock->Lock = false;
+				g_pUserData[result2]->pLockBlock->LockUser = L"";
+				//更新节点操作链表
+				pMind->BlockTree.pnode = g_pUserData[result2]->pLockBlock;
+				int deep = pMind->BlockTree.GetLocal(g_IntBuf);
+				RefreshOperateList(*pMind, &time, deep, g_IntBuf, false);
+			}
+			g_pUserData[result2]->pLockBlock = 0;
+		}
 		pMind->EditNum --;
 	}
 

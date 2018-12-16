@@ -38,6 +38,7 @@
 //额外库库
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
+#include <cassert>
 
 
 //工程基础文件
